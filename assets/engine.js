@@ -222,6 +222,14 @@
 
         loadOrderData: function (orderId, config) {
             const self = this;
+            if (config.orderData) {
+                self.orderData = config.orderData;
+                self.populateOrder(config.orderData);
+                if (config.orderData.is_demo) {
+                    self.renderUnpaidWatermark();
+                }
+                return;
+            }
             fetch(`/api/order/${orderId}`)
                 .then(res => {
                     if (!res.ok) throw new Error('Order not found');
@@ -358,6 +366,13 @@
         },
 
         renderUnpaidWatermark: function () {
+            if (this.orderData && (this.orderData.is_demo === false || this.orderData.is_paid === true)) {
+                const wm = document.getElementById('taklivoWatermark');
+                if (wm) wm.remove();
+                const bn = document.getElementById('taklivoBanner');
+                if (bn) bn.remove();
+                return;
+            }
             let watermark = document.getElementById('taklivoWatermark');
             if (!watermark) {
                 watermark = document.createElement('div');
